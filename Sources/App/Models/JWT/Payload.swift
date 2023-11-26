@@ -2,7 +2,7 @@ import Vapor
 import JWT
 
 struct Payload: JWTPayload, Authenticatable {
-    // User-releated stuff
+    // User-related stuff
     var userID: UUID
     var fullName: String
     var email: String
