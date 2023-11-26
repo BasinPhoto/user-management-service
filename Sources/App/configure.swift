@@ -20,13 +20,16 @@ public func configure(_ app: Application) throws {
     
     // MARK: Database
     // Configure PostgreSQL database
-    app.databases.use(
-        .postgres(
-            hostname: Environment.get("POSTGRES_HOSTNAME") ?? "localhost",
-            username: Environment.get("POSTGRES_USERNAME") ?? "vapor",
-            password: Environment.get("POSTGRES_PASSWORD") ?? "password",
-            database: Environment.get("POSTGRES_DATABASE") ?? "vapor"
-        ), as: .psql)
+    let postgresConfiguration = SQLPostgresConfiguration(
+        hostname: Environment.get("POSTGRES_HOSTNAME") ?? "localhost",
+        port: 5432,
+        username: Environment.get("POSTGRES_USERNAME") ?? "vapor",
+        password: Environment.get("POSTGRES_PASSWORD") ?? "password",
+        database: Environment.get("POSTGRES_DATABASE") ?? "vapor",
+        tls: .disable
+    )
+    
+    app.databases.use(.postgres(configuration: postgresConfiguration), as: .psql)
         
     // MARK: Middleware
     app.middleware = .init()

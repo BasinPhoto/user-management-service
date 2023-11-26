@@ -18,42 +18,43 @@ final class RegisterTests: XCTestCase {
         app.shutdown()
     }
     
-    func testRegisterHappyPath() throws {
+    func testRegisterHappyPath() async throws {
         app.randomGenerators.use(.rigged(value: "token"))
         
         let data = RegisterRequest(fullName: "Test User", email: "test@test.com", password: "password123", confirmPassword: "password123")
         
-        try app.test(.POST, registerPath, beforeRequest: { req in
+        try await app.test(.POST, registerPath) { req in
             try req.content.encode(data)
-        }, afterResponse: { res in
+        } afterResponse: { res in
             XCTAssertEqual(res.status, .created)
+            let user = try await app.repositories.users.find(email: "test@test.com")
+            let foundUser = try XCTUnwrap(user)
+            XCTAssertEqual(foundUser.isAdmin, false)
+            XCTAssertEqual(foundUser.fullName, "Test User")
+            XCTAssertEqual(foundUser.email, "test@test.com")
+            XCTAssertEqual(foundUser.isEmailVerified, false)
+            XCTAssertTrue(try BCryptDigest().verify("password123", created: foundUser.passwordHash))
             
-            let user = try XCTUnwrap(app.repositories.users.find(email: "test@test.com").wait())
-            XCTAssertEqual(user.isAdmin, false)
-            XCTAssertEqual(user.fullName, "Test User")
-            XCTAssertEqual(user.email, "test@test.com")
-            XCTAssertEqual(user.isEmailVerified, false)
-            XCTAssertTrue(try BCryptDigest().verify("password123", created: user.passwordHash))
-            
-            let emailToken = try app.repositories.emailTokens.find(token: SHA256.hash("token")).wait()
-            XCTAssertEqual(emailToken?.$user.id, user.id)
+            let emailToken = try await app.repositories.emailTokens.find(token: SHA256.hash("token"))
+            XCTAssertEqual(emailToken?.$user.id, foundUser.id)
             XCTAssertNotNil(emailToken)
             
             let job = try XCTUnwrap(app.queues.test.first(EmailJob.self))
             XCTAssertEqual(job.recipient, "test@test.com")
             XCTAssertEqual(job.email.templateName, "email_verification")
             XCTAssertEqual(job.email.templateData["verify_url"], "http://api.local/auth/email-verification?token=token")
-        })
+        }
     }
     
-    func testRegisterFailsWithNonMatchingPasswords() throws {
+    func testRegisterFailsWithNonMatchingPasswords() async throws {
         let data = RegisterRequest(fullName: "Test User", email: "test@test.com", password: "12345678", confirmPassword: "124")
         
-        try app.test(.POST, registerPath, beforeRequest: { request in
+        try await app.test(.POST, registerPath, beforeRequest: { request in
             try request.content.encode(data)
         }, afterResponse: { res in
             XCTAssertResponseError(res, AuthenticationError.passwordsDontMatch)
-            XCTAssertEqual(try app.repositories.users.count().wait(), 0)
+            let usersCount = try await app.repositories.users.count()
+            XCTAssertEqual(usersCount, 0)
         })
     }
     

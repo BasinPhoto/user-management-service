@@ -11,38 +11,35 @@ class TestUserRepository: UserRepository, TestRepository {
         self.eventLoop = eventLoop
     }
     
-    func create(_ user: User) -> EventLoopFuture<Void> {
+    func create(_ user: User) async throws {
         user.id = UUID()
         users.append(user)
-        return eventLoop.makeSucceededFuture(())
     }
     
-    func delete(id: UUID) -> EventLoopFuture<Void> {
+    func delete(id: UUID) async throws {
         users.removeAll(where: { $0.id == id })
-        return eventLoop.makeSucceededFuture(())
     }
     
-    func all() -> EventLoopFuture<[User]> {
-        return eventLoop.makeSucceededFuture(users)
+    func all() async throws -> [User] {
+        users
     }
     
-    func find(id: UUID?) -> EventLoopFuture<User?> {
+    func find(id: UUID?) async throws -> User? {
         let user = users.first(where: { $0.id == id })
-        return eventLoop.makeSucceededFuture(user)
+        return user
     }
     
-    func find(email: String) -> EventLoopFuture<User?> {
+    func find(email: String) async throws -> User? {
         let user = users.first(where: { $0.email == email })
-        return eventLoop.makeSucceededFuture(user)
+        return user
     }
     
-    func set<Field>(_ field: KeyPath<User, Field>, to value: Field.Value, for userID: UUID) -> EventLoopFuture<Void> where Field : QueryableProperty, Field.Model == User {
+    func set<Field>(_ field: KeyPath<User, Field>, to value: Field.Value, for userID: UUID) async throws where Field : QueryableProperty, Field.Model == User {
         let user = users.first(where: { $0.id == userID })!
         user[keyPath: field].value = value
-        return eventLoop.makeSucceededFuture(())
     }
     
-    func count() -> EventLoopFuture<Int> {
-        return eventLoop.makeSucceededFuture(users.count)
+    func count() async throws -> Int {
+        users.count
     }
 }

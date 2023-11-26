@@ -10,33 +10,30 @@ final class TestPasswordTokenRepository: PasswordTokenRepository, TestRepository
         self.tokens = tokens
     }
     
-    func find(userID: UUID) -> EventLoopFuture<PasswordToken?> {
+    func find(userID: UUID) async throws -> PasswordToken? {
         let token = tokens.first(where: { $0.$user.id == userID })
-        return eventLoop.makeSucceededFuture(token)
+        return token
     }
     
-    func find(token: String) -> EventLoopFuture<PasswordToken?> {
+    func find(token: String) async throws -> PasswordToken? {
         let token = tokens.first(where: { $0.token == token })
-        return eventLoop.makeSucceededFuture(token)
+        return token
     }
     
-    func count() -> EventLoopFuture<Int> {
-        return eventLoop.makeSucceededFuture(tokens.count)
+    func count() async throws -> Int {
+        return tokens.count
     }
     
-    func create(_ passwordToken: PasswordToken) -> EventLoopFuture<Void> {
+    func create(_ passwordToken: PasswordToken) async throws {
         tokens.append(passwordToken)
-        return eventLoop.makeSucceededFuture(())
     }
 
     
-    func delete(_ passwordToken: PasswordToken) -> EventLoopFuture<Void> {
+    func delete(_ passwordToken: PasswordToken) async throws {
         tokens.removeAll(where: { passwordToken.id == $0.id })
-        return eventLoop.makeSucceededFuture(())
     }
     
-    func delete(for userID: UUID) -> EventLoopFuture<Void> {
+    func delete(for userID: UUID) async throws {
         tokens.removeAll(where: { $0.$user.id == userID })
-        return eventLoop.makeSucceededFuture(())
     }
 }

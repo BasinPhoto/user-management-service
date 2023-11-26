@@ -11,33 +11,30 @@ class TestRefreshTokenRepository: RefreshTokenRepository, TestRepository {
         self.eventLoop = eventLoop
     }
     
-    func create(_ token: RefreshToken) -> EventLoopFuture<Void> {
+    func create(_ token: RefreshToken) async throws {
         token.id = UUID()
         tokens.append(token)
-        return eventLoop.makeSucceededFuture(())
     }
     
-    func find(id: UUID?) -> EventLoopFuture<RefreshToken?> {
+    func find(id: UUID?) async throws -> RefreshToken? {
         let token = tokens.first(where: { $0.id == id})
-        return eventLoop.makeSucceededFuture(token)
+        return token
     }
     
-    func find(token: String) -> EventLoopFuture<RefreshToken?> {
+    func find(token: String) async throws -> RefreshToken? {
         let token = tokens.first(where: { $0.token == token })
-        return eventLoop.makeSucceededFuture(token)
+        return token
     }
     
-    func delete(_ token: RefreshToken) -> EventLoopFuture<Void> {
+    func delete(_ token: RefreshToken) async throws {
         tokens.removeAll(where: { $0.id == token.id })
-        return eventLoop.makeSucceededFuture(())
      }
     
-    func count() -> EventLoopFuture<Int> {
-        return eventLoop.makeSucceededFuture(tokens.count)
+    func count() async throws -> Int {
+        return tokens.count
     }
     
-    func delete(for userID: UUID) -> EventLoopFuture<Void> {
+    func delete(for userID: UUID) async throws {
         tokens.removeAll(where: { $0.$user.id == userID })
-        return eventLoop.makeSucceededFuture(())
     }
 }

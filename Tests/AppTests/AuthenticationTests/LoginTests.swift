@@ -18,16 +18,16 @@ final class LoginTests: XCTestCase {
         app.shutdown()
     }
     
-    func testLoginHappyPath() throws {
+    func testLoginHappyPath() async throws {
         app.passwords.use(.plaintext)
         
         let user = try User(fullName: "Test User", email: "test@test.com", passwordHash: app.password.hash("password"), isEmailVerified: true)
-        try app.repositories.users.create(user).wait()
+        try await app.repositories.users.create(user)
         let loginRequest = LoginRequest(email: "test@test.com", password: "password")
         
-        try app.test(.POST, loginPath, beforeRequest: { req in
+        try app.test(.POST, loginPath) { req in
             try req.content.encode(loginRequest)
-        }, afterResponse: { res in
+        } afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertContent(LoginResponse.self, res) { login in
                 XCTAssertEqual(login.user.email, "test@test.com")
@@ -35,7 +35,7 @@ final class LoginTests: XCTestCase {
                 XCTAssert(!login.refreshToken.isEmpty)
                 XCTAssert(!login.accessToken.isEmpty)
             }
-        })
+        }
     }
     
     func testLoginWithNonExistingUserFails() throws {
@@ -48,10 +48,10 @@ final class LoginTests: XCTestCase {
         })
     }
     
-    func testLoginWithIncorrectPasswordFails() throws {
+    func testLoginWithIncorrectPasswordFails() async throws {
         app.passwords.use(.plaintext)
         let user = User(fullName: "Test User", email: "test@test.com", passwordHash: "password", isEmailVerified: true)
-        try app.repositories.users.create(user).wait()
+        try await app.repositories.users.create(user)
         
         let loginRequest = LoginRequest(email: "test@test.com", password: "wrongpassword")
         
@@ -62,11 +62,11 @@ final class LoginTests: XCTestCase {
         })
     }
     
-    func testLoginRequiresEmailVerification() throws {
+    func testLoginRequiresEmailVerification() async throws {
         app.passwords.use(.plaintext)
         
         let user = User(fullName: "Test User", email: "test@test.com", passwordHash: "password", isEmailVerified: false)
-        try app.repositories.users.create(user).wait()
+        try await app.repositories.users.create(user)
         
         let loginRequest = LoginRequest(email: "test@test.com", password: "password")
         
@@ -77,22 +77,22 @@ final class LoginTests: XCTestCase {
         })
     }
     
-    func testLoginDeletesOldRefreshTokens() throws {
+    func testLoginDeletesOldRefreshTokens() async throws {
         app.passwords.use(.plaintext)
         
         let user = try User(fullName: "Test User", email: "test@test.com", passwordHash: app.password.hash("password"), isEmailVerified: true)
-        try app.repositories.users.create(user).wait()
+        try await app.repositories.users.create(user)
         let loginRequest = LoginRequest(email: "test@test.com", password: "password")
         let token = app.random.generate(bits: 256)
         let refreshToken = try RefreshToken(token: SHA256.hash(token), userID: user.requireID())
-        try app.repositories.refreshTokens.create(refreshToken).wait()
+        try await app.repositories.refreshTokens.create(refreshToken)
         
-        try app.test(.POST, loginPath, beforeRequest: { req in
+        try await app.test(.POST, loginPath) { req in
             try req.content.encode(loginRequest)
-        }, afterResponse: { res in
+        } afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
-            let tokenCount = try app.repositories.refreshTokens.count().wait()
+            let tokenCount = try await app.repositories.refreshTokens.count()
             XCTAssertEqual(tokenCount, 1)
-        })
+        }
     }
 }
