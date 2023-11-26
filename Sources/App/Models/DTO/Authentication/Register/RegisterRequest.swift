@@ -1,4 +1,5 @@
 import Vapor
+import VaporToOpenAPI
 
 struct RegisterRequest: Content {
     let fullName: String
@@ -12,6 +13,25 @@ extension RegisterRequest: Validatable {
         validations.add("fullName", as: String.self, is: .count(3...))
         validations.add("email", as: String.self, is: .email)
         validations.add("password", as: String.self, is: .count(8...))
+    }
+}
+
+extension RegisterRequest: WithExample {
+    static var example: RegisterRequest {
+        RegisterRequest(
+            fullName: "Name Surname",
+            email: "some@mail.com",
+            password: "password",
+            confirmPassword: "password")
+    }
+}
+
+extension RegisterRequest {
+    enum CodingKeys: String, CodingKey {
+        case fullName = "full_name"
+        case email = "email"
+        case password = "password"
+        case confirmPassword = "confirm_password"
     }
 }
 

@@ -2,8 +2,8 @@ import Fluent
 import Vapor
 
 func routes(_ app: Application) throws {
-    app.group("api") { api in
-        // Authentication
-        try! api.register(collection: AuthenticationController())
-    }
+    let root = app.grouped("v1")
+    let auth = root.grouped("auth")
+    
+    try auth.register(collection: AuthenticationController())
 }

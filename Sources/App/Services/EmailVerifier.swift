@@ -8,17 +8,13 @@ struct EmailVerifier {
     let eventLoop: EventLoop
     let generator: RandomGenerator
     
-    func verify(for user: User) -> EventLoopFuture<Void> {
-        do {
-            let token = generator.generate(bits: 256)
-            let emailToken = try EmailToken(userID: user.requireID(), token: SHA256.hash(token))
-            let verifyUrl = url(token: token)
-            return emailTokenRepository.create(emailToken).flatMap {
-                self.queue.dispatch(EmailJob.self, .init(VerificationEmail(verifyUrl: verifyUrl), to: user.email))
-            }
-        } catch {
-            return eventLoop.makeFailedFuture(error)
-        }
+    func verify(for user: User) async throws {
+        let token = generator.generate(bits: 256)
+        let emailToken = try EmailToken(userID: user.requireID(), token: SHA256.hash(token))
+        let verifyUrl = url(token: token)
+        
+        try await emailTokenRepository.create(emailToken)
+        try await queue.dispatch(EmailJob.self, .init(VerificationEmail(verifyUrl: verifyUrl), to: user.email))
     }
     
     private func url(token: String) -> String {
