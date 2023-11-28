@@ -6,6 +6,7 @@ import Crypto
 final class AuthenticationTests: XCTestCase {
     var app: Application!
     var testWorld: TestWorld!
+    let verifyUrl = "v1/auth/me"
     
     override func setUpWithError() throws {
         app = Application(.testing)
@@ -21,7 +22,7 @@ final class AuthenticationTests: XCTestCase {
         let user = User(fullName: "Test User", email: "test@test.com", passwordHash: "123", isAdmin: true)
         try await app.repositories.users.create(user)
         
-        try app.test(.GET, "api/auth/me", user: user, afterResponse: { res in
+        try app.test(.GET, verifyUrl, user: user) { res in
             XCTAssertEqual(res.status, .ok)
             XCTAssertContent(UserDTO.self, res) { userContent in
                 XCTAssertEqual(userContent.email, "test@test.com")
@@ -29,6 +30,6 @@ final class AuthenticationTests: XCTestCase {
                 XCTAssertEqual(userContent.isAdmin, true)
                 XCTAssertEqual(userContent.id, user.id)
             }
-        })
+        }
     }
 }

@@ -6,7 +6,7 @@ import Crypto
 final class LoginTests: XCTestCase {
     var app: Application!
     var testWorld: TestWorld!
-    let loginPath = "api/auth/login"
+    let loginPath = "v1/auth/login"
     
     override func setUpWithError() throws {
         app = Application(.testing)

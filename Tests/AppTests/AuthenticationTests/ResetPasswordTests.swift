@@ -6,6 +6,8 @@ import Crypto
 final class ResetPasswordTests: XCTestCase {
     var app: Application!
     var testWorld: TestWorld!
+    let resetPasswordURL = "v1/auth/reset-password"
+    let recoverPasswordURL = "v1/auth/recover"
     
     override func setUpWithError() throws {
         app = Application(.testing)
@@ -24,7 +26,7 @@ final class ResetPasswordTests: XCTestCase {
         try await app.repositories.users.create(user)
         
         let resetPasswordRequest = ResetPasswordRequest(email: "test@test.com")
-        try await app.test(.POST, "api/auth/reset-password") { req in
+        try await app.test(.POST, resetPasswordURL) { req in
             try req.content.encode(resetPasswordRequest)
         } afterResponse: { res in
             XCTAssertEqual(res.status, .noContent)
@@ -40,7 +42,7 @@ final class ResetPasswordTests: XCTestCase {
     
     func testResetPasswordSucceedsWithNonExistingEmail() async throws {
         let resetPasswordRequest = ResetPasswordRequest(email: "none@test.com")
-        try await app.test(.POST, "api/auth/reset-password") { req in
+        try await app.test(.POST, resetPasswordURL) { req in
             try req.content.encode(resetPasswordRequest)
         } afterResponse: { res in
             XCTAssertEqual(res.status, .noContent)
@@ -61,7 +63,7 @@ final class ResetPasswordTests: XCTestCase {
         
         let recoverRequest = RecoverAccountRequest(password: "newpassword", confirmPassword: "newpassword", token: "passwordtoken")
         
-        try await app.test(.POST, "api/auth/recover") { req in
+        try await app.test(.POST, recoverPasswordURL) { req in
             try req.content.encode(recoverRequest)
         } afterResponse: { res in
             XCTAssertEqual(res.status, .noContent)
@@ -77,21 +79,21 @@ final class ResetPasswordTests: XCTestCase {
         try await app.repositories.passwordTokens.create(token)
         
         let recoverRequest = RecoverAccountRequest(password: "password", confirmPassword: "password", token: "passwordtoken")
-        try app.test(.POST, "api/auth/recover", content: recoverRequest, afterResponse: { res in
+        try app.test(.POST, recoverPasswordURL, content: recoverRequest, afterResponse: { res in
             XCTAssertResponseError(res, AuthenticationError.passwordTokenHasExpired)
         })
     }
     
     func testRecoverAccountWithInvalidTokenFails() async throws {
         let recoverRequest = RecoverAccountRequest(password: "password", confirmPassword: "password", token: "sdfsdfsf")
-        try app.test(.POST, "api/auth/recover", content: recoverRequest, afterResponse: { res in
+        try app.test(.POST, recoverPasswordURL, content: recoverRequest, afterResponse: { res in
             XCTAssertResponseError(res, AuthenticationError.invalidPasswordToken)
         })
     }
     
     func testRecoverAccountWithNonMatchingPasswordsFail() async throws {
         let recoverRequest = RecoverAccountRequest(password: "password", confirmPassword: "password123", token: "token")
-        try app.test(.POST, "api/auth/recover", content: recoverRequest, afterResponse: { res in
+        try app.test(.POST, recoverPasswordURL, content: recoverRequest, afterResponse: { res in
             XCTAssertResponseError(res, AuthenticationError.passwordsDontMatch)
         })
     }
