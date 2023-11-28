@@ -68,8 +68,10 @@ The template uses [VaporMailgunService](https://github.com/vapor-community/Vapor
 This package uses JWT for Access Tokens, and by default it loads JWT credentials from a JWKS file called `keypair.jwks` in the root directory. You can generate a JWKS keypair at https://mkjwk.org/
 
 ##Testing
+
 ###Database
 For testing start docker container with following settings:
+
 ```
 docker run --name postgres-test -e POSTGRES_DB=vapor-test \
   -e POSTGRES_USER=vapor_username -e POSTGRES_PASSWORD=vapor_password \
