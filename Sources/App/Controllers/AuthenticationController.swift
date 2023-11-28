@@ -53,10 +53,19 @@ struct AuthenticationController: RouteCollection {
         
         let passwordHash = try await req.password.async.hash(registerRequest.password)
         let user = try User(from: registerRequest, hash: passwordHash)
-        try await req.users.create(user)
+        do {
+            try await req.users.create(user)
+        } catch {
+            if let dbError = error as? DatabaseError, dbError.isConstraintFailure {
+                throw AuthenticationError.emailAlreadyExists
+            } else {
+                throw error                
+            }
+        }
+        
         try await req.emailVerifier.verify(for: user)
         
-        return HTTPStatus.created        
+        return .created
     }
     
     private func login(_ req: Request) async throws -> LoginResponse {

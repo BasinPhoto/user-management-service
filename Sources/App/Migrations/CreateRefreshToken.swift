@@ -1,8 +1,8 @@
 import Fluent
 
-struct CreateRefreshToken: Migration {
-    func prepare(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema("user_refresh_tokens")
+struct CreateRefreshToken: AsyncMigration {
+    func prepare(on database: Database) async throws {
+        try await database.schema("user_refresh_tokens")
             .id()
             .field("token", .string)
             .field("user_id", .uuid, .references("users", "id", onDelete: .cascade))
@@ -13,7 +13,7 @@ struct CreateRefreshToken: Migration {
             .create()
     }
     
-    func revert(on database: Database) -> EventLoopFuture<Void> {
-        return database.schema("user_refresh_tokens").delete()
+    func revert(on database: Database) async throws {
+        try await database.schema("user_refresh_tokens").delete()
     }
 }

@@ -19,24 +19,33 @@ public func configure(_ app: Application) throws {
     }
     
     // MARK: Database
-    let databaseName: String
     let databasePort: Int
+    let databaseLocalhost: String
+    let databaseUsername: String
+    let databasePassword: String
+    let databaseName: String
     // 1
     if (app.environment == .testing) {
-      databaseName = "vapor-test"
-      databasePort = 5433
+        databaseLocalhost = "localhost"
+        databaseUsername = "vapor_username"
+        databasePassword = "vapor_password"
+        databaseName = "vapor-test"
+        databasePort = 5433
     } else {
-      databaseName = "vapor_database"
-      databasePort = 5432
+        databaseLocalhost = Environment.get("DATABASE_HOST") ?? "localhost"
+        databaseUsername = Environment.get("DATABASE_USERNAME") ?? "vapor"
+        databasePassword = Environment.get("DATABASE_PASSWORD") ?? "password"
+        databaseName = Environment.get("DATABASE_NAME") ?? "vapor"
+        databasePort = 5432
     }
     
     // Configure PostgreSQL database
     let postgresConfiguration = SQLPostgresConfiguration(
-        hostname: Environment.get("DATABASE_HOST") ?? "localhost",
+        hostname: databaseLocalhost,
         port: databasePort,
-        username: Environment.get("DATABASE_USERNAME") ?? "vapor_username",
-        password: Environment.get("DATABASE_PASSWORD") ?? "vapor_password",
-        database: Environment.get("DATABASE_NAME") ?? databaseName,
+        username: databaseUsername,
+        password: databasePassword,
+        database: databaseName,
         tls: .disable
     )
     

@@ -26,15 +26,6 @@ extension RegisterRequest: WithExample {
     }
 }
 
-extension RegisterRequest {
-    enum CodingKeys: String, CodingKey {
-        case fullName = "full_name"
-        case email = "email"
-        case password = "password"
-        case confirmPassword = "confirm_password"
-    }
-}
-
 extension User {
     convenience init(from register: RegisterRequest, hash: String) throws {
         self.init(fullName: register.fullName, email: register.email, passwordHash: hash)
