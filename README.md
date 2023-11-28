@@ -67,9 +67,9 @@ The template uses [VaporMailgunService](https://github.com/vapor-community/Vapor
 ### JWT
 This package uses JWT for Access Tokens, and by default it loads JWT credentials from a JWKS file called `keypair.jwks` in the root directory. You can generate a JWKS keypair at https://mkjwk.org/
 
-##Testing
+## Testing
 
-###Database
+### Database
 For testing start docker container with following settings:
 
 ```
