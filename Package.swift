@@ -20,8 +20,6 @@ let package = Package(
         .package(url: "https://github.com/vapor/queues-redis-driver.git", from: "1.0.0-rc.1"),
         // 📚 VaporToOpenAPI
         .package(url: "https://github.com/dankinsoid/VaporToOpenAPI.git", from: "4.0.0"),
-
-        
         // Mailgun
         .package(url: "https://github.com/vapor-community/mailgun.git", from: "5.0.0")
     ],

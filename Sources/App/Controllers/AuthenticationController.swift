@@ -12,37 +12,116 @@ struct AuthenticationController: RouteCollection {
     )
 
     func boot(routes: RoutesBuilder) throws {
+        // MARK: - Routes
         routes.post("register", use: register)
             .openAPI(
                 tags: tag,
-                summary: "User registering",
-                description: "Register user by email",
+                summary: "Register",
+                description: """
+                Registering user by email
+                Full name is required and has minimum length 3 characters
+                Password has should be at least 8 symbols
+                """,
                 body: .type(of: RegisterRequest.example),
                 contentType: .application(.json)
             )
-            .response(statusCode: .noContent, description: "Successfully registered. No content.")
-            .response(statusCode: .badRequest, description: "Bad request")
+            .response(statusCode: .noContent, description: "Successfully registered")
         
         routes.post("login", use: login)
+            .openAPI(
+                tags: tag,
+                summary: "Login",
+                description: """
+                Login user by credentials
+                """,
+                body: .type(of: LoginRequest.example),
+                contentType: .application(.json)
+            )
+            .response(
+                body: .type(of: LoginResponse.example),
+                contentType: .application(.json),
+                description: "Successfully logged in"
+            )
+
+        routes.post("email-verification", use: sendEmailVerification)
+            .openAPI(
+                tags: tag,
+                summary: "Send E-mail verification",
+                description: """
+                Sends email with verification link
+                Token for verification expires after 24h
+                """,
+                body: .type(of: SendEmailVerificationRequest.example),
+                contentType: .application(.json)
+            )
+            .response(statusCode: .noContent, description: "Email verification successfully send")
         
-        routes.group("email-verification") { emailVerificationRoutes in
-            emailVerificationRoutes.post("", use: sendEmailVerification)
-            emailVerificationRoutes.get("", use: verifyEmail)
-        }
+        routes.get("email-verification", use: verifyEmail)
+            .openAPI(
+                tags: tag,
+                summary: "Verify E-mail",
+                description: """
+                For verify requested email
+                Token for verification expires after 24h
+                """,
+                query: .type(of: TokenQuery.example)
+            )
+            .response(statusCode: .ok, description: "Email successfully verified")
         
-        routes.group("reset-password") { resetPasswordRoutes in
-            resetPasswordRoutes.post("", use: resetPassword)
-            resetPasswordRoutes.get("verify", use: verifyResetPasswordToken)
-        }
+        routes.post("reset-password", use: resetPassword)
+            .openAPI(
+                tags: tag,
+                summary: "Reset password",
+                description: """
+                Request reset password by email
+                """,
+                body: .type(of: ResetPasswordRequest.example),
+                contentType: .application(.json)
+            )
+            .response(statusCode: .noContent, description: "Successfully requested password reset")
+        
+        routes.get("reset-password", "verify", use: verifyResetPasswordToken)
+            .openAPI(
+                tags: tag,
+                summary: "Reset password",
+                description: """
+                Reset password confirmation
+                """,
+                query: .type(of: TokenQuery.example)
+            )
+            .response(statusCode: .noContent, description: "Password successfully reseted")
+        
         routes.post("recover", use: recoverAccount)
+            .openAPI(
+                tags: tag,
+                summary: "Recover",
+                description: """
+                Recover account by set new password
+                """,
+                body: .type(of: RecoverAccountRequest.example),
+                contentType: .application(.json)
+            )
+            .response(statusCode: .noContent, description: "Successfully requested password reset")
         
         routes.post("accessToken", use: refreshAccessToken)
+            .openAPI(
+                tags: tag,
+                summary: "Refresh Token",
+                description: """
+                Recover account by set new password
+                """,
+                body: .type(of: RecoverAccountRequest.example),
+                contentType: .application(.json)
+            )
+            .response(statusCode: .noContent, description: "Successfully requested password reset")
         
         // Authentication required
         routes.group(UserAuthenticator()) { authenticated in
             authenticated.get("me", use: getCurrentUser)
         }
     }
+    
+    // MARK: - Implementations
     
     private func register(_ req: Request) async throws -> HTTPStatus {
         try RegisterRequest.validate(content: req)
@@ -140,8 +219,10 @@ struct AuthenticationController: RouteCollection {
     }
     
     private func verifyEmail(_ req: Request) async throws -> HTTPStatus {
-        let token = try req.query.get(String.self, at: "token")
-        let hashedToken = SHA256.hash(token)
+        try TokenQuery.validate(query: req)
+        let query = try req.query.decode(TokenQuery.self)
+        
+        let hashedToken = SHA256.hash(query.token)
         
         guard let emailToken = try await req.emailTokens.find(token: hashedToken) else {
             throw AuthenticationError.emailTokenNotFound
@@ -167,9 +248,10 @@ struct AuthenticationController: RouteCollection {
     }
     
     private func verifyResetPasswordToken(_ req: Request) async throws -> HTTPStatus {
-        let token = try req.query.get(String.self, at: "token")
+        try TokenQuery.validate(query: req)
+        let query = try req.query.decode(TokenQuery.self)
         
-        let hashedToken = SHA256.hash(token)
+        let hashedToken = SHA256.hash(query.token)
         
         guard let passwordToken = try await req.passwordTokens.find(token: hashedToken) else {
             throw AuthenticationError.invalidPasswordToken
