@@ -104,10 +104,32 @@ struct AuthenticationController: RouteCollection {
             .response(statusCode: .noContent, description: "Successfully requested password reset")
         
         routes.post("accessToken", use: refreshAccessToken)
+            .openAPI(
+                tags: tag,
+                summary: "Access Token",
+                description: """
+                Request for refreshing access token
+                """,
+                body: .type(of: AccessTokenRequest.example),
+                contentType: .application(.json)
+            )
+            .response(
+                body: .type(of: AccessTokenResponse.example),
+                contentType: .application(.json),
+                description: "Successfully refreshed token"
+            )
         
         // Authentication required
         routes.group(UserAuthenticator()) { authenticated in
             authenticated.get("me", use: getCurrentUser)
+                .openAPI(
+                    tags: tag,
+                    auth: .bearer()
+                )
+                .response(
+                    body: .type(of:  UserDTO.example),
+                    contentType: .application(.json)
+                )
         }
     }
     

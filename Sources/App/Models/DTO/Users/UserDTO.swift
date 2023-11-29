@@ -1,4 +1,5 @@
 import Vapor
+import VaporToOpenAPI
 
 struct UserDTO: Content {
     let id: UUID?
@@ -18,4 +19,8 @@ struct UserDTO: Content {
     }
 }
 
-
+extension UserDTO: WithExample {
+    static var example: UserDTO {
+        .init(fullName: "Name Surname", email: "user@mail.com", isAdmin: false)
+    }
+}
