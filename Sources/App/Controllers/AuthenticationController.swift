@@ -104,16 +104,6 @@ struct AuthenticationController: RouteCollection {
             .response(statusCode: .noContent, description: "Successfully requested password reset")
         
         routes.post("accessToken", use: refreshAccessToken)
-            .openAPI(
-                tags: tag,
-                summary: "Refresh Token",
-                description: """
-                Recover account by set new password
-                """,
-                body: .type(of: RecoverAccountRequest.example),
-                contentType: .application(.json)
-            )
-            .response(statusCode: .noContent, description: "Successfully requested password reset")
         
         // Authentication required
         routes.group(UserAuthenticator()) { authenticated in
