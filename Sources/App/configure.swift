@@ -51,10 +51,7 @@ public func configure(_ app: Application) throws {
     
     app.databases.use(.postgres(configuration: postgresConfiguration), as: .psql)
         
-    // MARK: Middleware
-    app.middleware = .init()
-    app.middleware.use(ErrorMiddleware.custom(environment: app.environment))
-    
+    try middlewares(app)
     // MARK: Model Middleware
     
     // MARK: Mailgun
