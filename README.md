@@ -72,8 +72,14 @@ This package uses JWT for Access Tokens, and by default it loads JWT credentials
 ### Database
 For testing start docker container with following settings:
 
-```
-docker run --name postgres-test -e POSTGRES_DB=vapor-test \
+PostreSQL
+```bash
+docker run --name ums-postgres-test -e POSTGRES_DB=vapor-test \
   -e POSTGRES_USER=vapor_username -e POSTGRES_PASSWORD=vapor_password \
   -p 5433:5432 -d postgres
+```
+
+Redis
+```bash
+docker run --name ums-redis -p 6379:6379 -d redis
 ```
