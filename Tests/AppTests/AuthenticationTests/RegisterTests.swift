@@ -6,7 +6,7 @@ import Crypto
 final class RegisterTests: XCTestCase {
     var app: Application!
     var testWorld: TestWorld!
-    let registerPath = "v1/auth/register"
+    let registerPath = "api/auth/register"
     
     override func setUpWithError() throws {
         app = Application(.testing)

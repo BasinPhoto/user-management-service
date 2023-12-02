@@ -18,7 +18,7 @@ struct EmailVerifier {
     }
     
     private func url(token: String) -> String {
-        #"\#(config.apiURL)/v1/auth/email-verification?token=\#(token)"#
+        #"\#(config.apiURL)/auth/email-verification?token=\#(token)"#
     }
 }
 

@@ -7,7 +7,7 @@ import Crypto
 final class EmailVerificationTests: XCTestCase {
     var app: Application!
     var testWorld: TestWorld!
-    let verifyURL = "v1/auth/email-verification"
+    let verifyURL = "api/auth/email-verification"
     
     override func setUpWithError() throws {
         app = Application(.testing)

@@ -2,7 +2,7 @@ import Fluent
 import Vapor
 
 func routes(_ app: Application) throws {
-    let root = app.grouped("v1")
+    let root = app.grouped("api")
     let auth = root.grouped("auth")
     let swagger = app.grouped("swagger")
     

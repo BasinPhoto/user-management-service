@@ -6,7 +6,7 @@ import Crypto
 final class TokenTests: XCTestCase {
     var app: Application!
     var testWorld: TestWorld!
-    let accessTokenPath = "v1/auth/accessToken"
+    let accessTokenPath = "api/auth/accessToken"
     var user: User!
     
     override func setUpWithError() throws {

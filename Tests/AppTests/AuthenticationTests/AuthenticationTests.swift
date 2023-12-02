@@ -6,7 +6,7 @@ import Crypto
 final class AuthenticationTests: XCTestCase {
     var app: Application!
     var testWorld: TestWorld!
-    let verifyUrl = "v1/auth/me"
+    let verifyUrl = "api/auth/me"
     
     override func setUpWithError() throws {
         app = Application(.testing)

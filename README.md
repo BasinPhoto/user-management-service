@@ -21,15 +21,15 @@ The template can be cloned and configured/changed to fit your needs, but should 
 ## Routes
 | URL                            | HTTP Method | Description                                              | Content (Body)          |
 |--------------------------------|:-----------:|----------------------------------------------------------|-------------------------|
-| /v1/auth/register              |     POST    | Registers a user and sends email verification            | `RegisterRequest`       |
-| /v1/auth/login                 |     POST    | Login with existing user (requires email verification)   | `LoginRequest`          |
-| /v1/auth/email-verification    |     GET     | Used to verify an email with a email verification token  | Query parameter `token` |
-| /v1/auth/email-verification    |     POST    | (Re)sends email verification to a specific email         | `SendEmailVerification` |
-| /v1/auth/reset-password        |     POST    | Sends reset-password email with token                    | `ResetPasswordRequest`  |
-| /v1/auth/reset-password/verify |     GET     | Verifies a given reset-password token                    | Query parameter `token` |
-| /v1/auth/recover               |     POST    | Changes user password with reset-password token supplied | `RecoverAccountRequest` |
-| /v1/auth/me                    |     GET     | Returns the current authenticated user                   | None                    |
-| /v1/auth/accessToken           |     POST    | Gives the user a new accesstoken and refresh token       | `AccessTokenRequest`    |
+| /api/auth/register              |     POST    | Registers a user and sends email verification            | `RegisterRequest`       |
+| /api/auth/login                 |     POST    | Login with existing user (requires email verification)   | `LoginRequest`          |
+| /api/auth/email-verification    |     GET     | Used to verify an email with a email verification token  | Query parameter `token` |
+| /api/auth/email-verification    |     POST    | (Re)sends email verification to a specific email         | `SendEmailVerification` |
+| /api/auth/reset-password        |     POST    | Sends reset-password email with token                    | `ResetPasswordRequest`  |
+| /api/auth/reset-password/verify |     GET     | Verifies a given reset-password token                    | Query parameter `token` |
+| /api/auth/recover               |     POST    | Changes user password with reset-password token supplied | `RecoverAccountRequest` |
+| /api/auth/me                    |     GET     | Returns the current authenticated user                   | None                    |
+| /api/auth/accessToken           |     POST    | Gives the user a new accesstoken and refresh token       | `AccessTokenRequest`    |
 
 ## Configuration
 ### Environment variables

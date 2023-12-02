@@ -6,8 +6,8 @@ import Crypto
 final class ResetPasswordTests: XCTestCase {
     var app: Application!
     var testWorld: TestWorld!
-    let resetPasswordURL = "v1/auth/reset-password"
-    let recoverPasswordURL = "v1/auth/recover"
+    let resetPasswordURL = "api/auth/reset-password"
+    let recoverPasswordURL = "api/auth/recover"
     
     override func setUpWithError() throws {
         app = Application(.testing)
@@ -104,13 +104,13 @@ final class ResetPasswordTests: XCTestCase {
         let passwordToken = try PasswordToken(userID: user.requireID(), token: SHA256.hash("token"))
         try await app.repositories.passwordTokens.create(passwordToken)
         
-        try app.test(.GET, "v1/auth/reset-password/verify?token=token", afterResponse: { res in
+        try app.test(.GET, "api/auth/reset-password/verify?token=token", afterResponse: { res in
             XCTAssertEqual(res.status, .noContent)
         })
     }
     
     func testVerifyPasswordTokenFailsWithInvalidToken() throws {
-        try app.test(.GET, "v1/auth/reset-password/verify?token=invalidtoken", afterResponse: { res in
+        try app.test(.GET, "api/auth/reset-password/verify?token=invalidtoken", afterResponse: { res in
             XCTAssertResponseError(res, AuthenticationError.invalidPasswordToken)
         })
     }
@@ -121,7 +121,7 @@ final class ResetPasswordTests: XCTestCase {
         let passwordToken = try PasswordToken(userID: user.requireID(), token: SHA256.hash("token"), expiresAt: Date().addingTimeInterval(-60))
         try await app.repositories.passwordTokens.create(passwordToken)
         
-        try await app.test(.GET, "v1/auth/reset-password/verify?token=token") { res in
+        try await app.test(.GET, "api/auth/reset-password/verify?token=token") { res in
             XCTAssertResponseError(res, AuthenticationError.passwordTokenHasExpired)
             let tokenCount = try await app.repositories.passwordTokens.count()
             XCTAssertEqual(tokenCount, 0)
