@@ -26,7 +26,7 @@ struct SwaggerController: RouteCollection {
                     version: Version(stringLiteral: "1.0")
                 ),
                 servers: [
-                    ServerObject(stringLiteral: "http://localhost:8080/swagger/")
+                    ServerObject(stringLiteral: "http://localhost:8080/")
                 ]
             )
     }

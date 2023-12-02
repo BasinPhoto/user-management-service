@@ -1,5 +1,5 @@
 import Mailgun
 
 extension MailgunDomain {
-    static var sandbox: MailgunDomain { .init("sandbox24eb708b9cb044748fb5f75945feb815.mailgun.org", .us)}
+    static var sandbox: MailgunDomain { .init("sandbox029675827389477aa772c9bb4278f12e.mailgun.org", .us)}
 }
